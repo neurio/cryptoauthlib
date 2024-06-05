@@ -66,6 +66,7 @@ selected plus however additional slots one would like */
 
 /** Define if cryptoauthlib is to use the maximum execution time method */
 /* #undef ATCA_NO_POLL */
+#define ATCA_NO_POLL 1
 
 /* \brief How long to wait after an initial wake failure for the POST to
  *         complete.
