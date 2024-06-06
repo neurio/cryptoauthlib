@@ -7,9 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#if !defined(POSIX_BUILD) && !defined(CEEDLING_TEST)
 #define UINT8_MAX 0xFF
-
-
 /* The cryptolib was not prepared for c2000 insanity so there is some 
  subtlety to how to convert these. In the 16bit word wonderland a uint32_t
  in memory exists as follows:
@@ -38,7 +37,7 @@
                                      ((x & 0xFF00000000) >> 8) | ((x & 0xFF0000000000) >> 24) |\
                                      ((x & 0xFF000000000000) >> 40) | ((x & 0xFF00000000000000) >> 56))
 
-
+#endif 
 /* Included HALS */
 #undef ATCA_HAL_KIT_UART
 #undef ATCA_HAL_KIT_HID
@@ -152,6 +151,11 @@ selected plus however additional slots one would like */
 
 /* #undef ATCA_PLATFORM_MEMSET_S */
 
+#ifdef POSIX_BUILD
+#define atca_delay_ms   hal_delay_ms
+#define atca_delay_us   hal_delay_us
+#else
 #define atca_delay_us   DEVICE_DELAY_US
+#endif
 
 #endif // ATCA_CONFIG_H
