@@ -203,7 +203,11 @@ ATCA_STATUS isATCAError(uint8_t *data);
 
 
 // command helpers
+#if !defined(POSIX_BUILD) && !defined(CEEDLING_TEST)
 void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le, bool isTx);
+#else
+void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le);
+#endif
 void atCalcCrc(ATCAPacket *packet);
 ATCA_STATUS atCheckCrc(const uint8_t *response);
 

@@ -689,6 +689,7 @@ ATCA_STATUS atKDF(ATCADeviceType device_type, ATCAPacket *packet)
 }
 #endif
 
+#if !defined(POSIX_BUILD) && !defined(CEEDLING_TEST)
 /** \brief Calculates CRC over the given raw data and returns the CRC in
  *         little-endian byte order.
  *
@@ -737,7 +738,32 @@ void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le, bool isTx)
     crc_le[0] = (uint8_t)(crc_register & 0x00FFu);
     crc_le[1] = (uint8_t)(crc_register >> 8u);
 }
+#else
+void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le)
+{
+    size_t counter;
+    uint16_t crc_register = 0;
+    uint16_t polynom = 0x8005;
+    uint8_t shift_register;
+    uint8_t data_bit, crc_bit;
 
+    for (counter = 0; counter < length; counter++)
+    {
+        for (shift_register = 0x01; shift_register > 0x00u; shift_register <<= 1)
+        {
+            data_bit = ((data[counter] & shift_register) != 0u) ? 1u : 0u;
+            crc_bit = (uint8_t)(crc_register >> 15);
+            crc_register <<= 1;
+            if (data_bit != crc_bit)
+            {
+                crc_register ^= polynom;
+            }
+        }
+    }
+    crc_le[0] = (uint8_t)(crc_register & 0x00FFu);
+    crc_le[1] = (uint8_t)(crc_register >> 8u);
+}
+#endif
 
 /** \brief This function calculates CRC and adds it to the correct offset in the packet data
  * \param[in] packet Packet to calculate CRC data for
@@ -757,7 +783,11 @@ void atCalcCrc(ATCAPacket *packet)
     crc = &packet->data[length - ((uint8_t)ATCA_CMD_SIZE_MIN - (uint8_t)ATCA_CRC_SIZE)];
 
     // stuff CRC into packet
+    #if !defined(POSIX_BUILD) && !defined(CEEDLING_TEST)
     atCRC(length, &(packet->txsize), crc, true);
+    #else
+    atCRC(length, &(packet->txsize), crc);
+    #endif
 }
 
 
@@ -772,7 +802,11 @@ ATCA_STATUS atCheckCrc(const uint8_t *response)
     uint8_t count = response[ATCA_COUNT_IDX];
 
     count -= (uint8_t)ATCA_CRC_SIZE;
+    #if !defined(POSIX_BUILD) && !defined(CEEDLING_TEST)
     atCRC(count, response, crc, false);
+    #else
+    atCRC(count, response, crc);
+    #endif
 
     return (crc[0] == response[count] && crc[1] == response[count + 1u]) ? ATCA_SUCCESS : ATCA_RX_CRC_ERROR;
 }
