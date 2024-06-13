@@ -707,7 +707,7 @@ void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le, bool isTx)
 
     for (counter = 0; counter < length; counter++)
     {
-        uint8_t data_byte;
+        uint8_t data_byte = data[counter];
 #if ATCA_WORD_SIZE_BYTES == 2
         if (isTx) {
             if (counter < PARAM2_MSB_IDX) {
@@ -719,8 +719,6 @@ void atCRC(size_t length, const uint8_t *data, uint8_t *crc_le, bool isTx)
             } else {
                 data_byte = data[counter - 1];
             }
-        } else {
-            data_byte = data[counter];
         }
 #endif
 
