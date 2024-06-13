@@ -41,7 +41,8 @@
 extern "C" {
 #endif
 
-
+#include "atca_status.h"
+#include "atca_devtypes.h"
 
 /* add ATCACommand declarations here
  *
