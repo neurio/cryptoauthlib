@@ -45,7 +45,7 @@ ATCA_STATUS calib_wakeup_i2c(ATCADevice device)
         int retries = atca_iface_get_retries(iface);
         uint8_t address = atcab_get_device_address(device);
         uint32_t temp;
-        uint32_t wake;
+        uint_least8_t wake[4];
         uint16_t rxlen;
 
         do
